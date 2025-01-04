@@ -14,8 +14,12 @@
   "dependencies": {
     "@types/dat.gui": "^0.7.13",
     "@types/p5": "^1.7.6",
+    "d3-scale": "^4.0.2",
     "dat.gui": "^0.7.9",
     "p5": "^1.9.0",
+    "p5.js-svg": "^1.5.1",
+    "react": "^19.0.0",
+    "seedrandom": "^3.0.5",
     "valtio": "^2.1.2"
   }
 }

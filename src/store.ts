@@ -11,5 +11,6 @@ export const store = proxy({
   exponentScale: 0.005,
   gapSize: 15,
   invertPattern: false,
-  debug: false
+  debug: false,
+  seed: "seed"
 }) 

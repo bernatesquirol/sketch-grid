@@ -2,45 +2,31 @@ import p5 from "p5";
 import { store } from './store';
 import { snapshot } from 'valtio';
 import { createNStateGrid, getGrid, positiveNegativeZero } from './grid';
+import init, { p5SVG } from 'p5.js-svg'
 
-const sketch = (p: p5) => {
+init(p5)
+import seedrandom from 'seedrandom'
+const sketch = (p: p5SVG) => {
   p.setup = () => {
-    p.createCanvas(800, 800);
+    p.createCanvas(800, 800, p.SVG);
     p.noLoop();
+    // Initialize seeded random function
   };
 
-  const calculateRegion = (x: number, y: number) => {
-    // const expY = calculateExpY(x);
-    const f = (x:number,y:number)=>Math.pow(x,2)-y*2
-    let value = positiveNegativeZero(f(x,y))
-    const gap = store.gapSize;
+  
 
-    // Create a continuous gap band
-    if (value===0) {
-        return 'gap';
-    } else if (value>=0) {
-        return 'upper';
-    } else {
-        return 'lower';
-    }
-  };
-
-  const drawCell = (x: number, y: number, size: number) => {
-    
-
-    const region = calculateRegion(x, y);
-    
-    if (region === 'gap') return;
-
+  const drawCell = (x: number, y: number, value:number, size: number) => {
+    // const region = calculateRegion(x, y);
+    if (value === 0) return;
     // Set color based on region
-    if (region === 'upper') {
+    if (value > 0) {
       p.stroke(store.upperColor);
     } else {
       p.stroke(store.lowerColor);
     }
     
-    // Randomly choose between horizontal or vertical line
-    if (p.random() < store.horizontalChance) {
+    // Use seededRandom instead of p.random
+    if (globalThis.random() < store.horizontalChance) {
       // Horizontal line
       p.line(x, y + size/2, x + size, y + size/2);
     } else {
@@ -48,7 +34,7 @@ const sketch = (p: p5) => {
       p.line(x + size/2, y, x + size/2, y + size);
     }
     if (globalThis.debug) {
-    // Draw the border of the cell in grey
+      // Draw the border of the cell in grey
       p.stroke(150); // Set stroke color to grey
       p.strokeWeight(1); // Set a thin stroke for the border
       p.noFill(); // No fill for the border
@@ -58,16 +44,19 @@ const sketch = (p: p5) => {
 
   p.draw = () => {
     const state = snapshot(store);
+    globalThis.random = seedrandom(state.seed)
     globalThis.debug = state.debug
     // Setup drawing parameters
     p.background(state.backgroundColor);
     p.strokeWeight(state.strokeWeight);
-    let grid = getGrid((x,y)=>x-y,-p.width/2,p.width/2,-p.height/2,p.height/2,state.cellSize)
+    // const f = (x,y)=>x-y
+    const f = (x:number,y:number)=>Math.pow(x,0.5)-y*2
+    let grid = getGrid(f,-p.width/2,p.width/2,-p.height/2,p.height/2,state.cellSize)
     // Draw grid of cells
     grid.forEach((row,y)=>{
-      row.forEach((col,x)=>{
+      row.forEach((value,x)=>{
         p.strokeWeight(state.strokeWeight);
-        drawCell(x*state.cellSize, y*state.cellSize, state.cellSize);
+        drawCell(x*state.cellSize, y*state.cellSize, value, state.cellSize);
       })
     })
     // for (let x = -p.width/2; x < p.width/2; x += state.cellSize) {
